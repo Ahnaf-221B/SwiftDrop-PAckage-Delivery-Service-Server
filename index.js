@@ -71,18 +71,18 @@ next();
 
 		
 
-		// app.post("/users", async (req, res) => {
-		// 	const email = req.body.email;
-		// 	const userExists = await usersCollection.findOne({ email });
-		// 	if (userExists) {
-		// 		return res
-		// 			.status(200)
-		// 			.send({ message: "User Already exists", inserted: false });
-		// 	}
-		// 	const user = req.body;
-		// 	const result = await usersCollection.insertOne(user);
-		// 	res.send(result);
-		// });
+		app.post("/users", async (req, res) => {
+			const email = req.body.email;
+			const userExists = await usersCollection.findOne({ email });
+			if (userExists) {
+				return res
+					.status(200)
+					.send({ message: "User Already exists", inserted: false });
+			}
+			const user = req.body;
+			const result = await usersCollection.insertOne(user);
+			res.send(result);
+		});
 
 		app.get("/parcels", async (req, res) => {
 			const parcels = await parcelCollection.find().toArray();
@@ -243,13 +243,13 @@ next();
 			res.send({ success: true, insertedId: result.insertedId });
 		});
 		
-		// //riders api 
+		//riders api 
 		
-		// app.post('/riders',async (req,res)=>{
-		// 	const rider = req.body;
-		// 	const result = await ridersCollection.insertOne(rider)
-		// 	res.send(result)
-		// })
+		app.post('/riders',async (req,res)=>{
+			const rider = req.body;
+			const result = await ridersCollection.insertOne(rider)
+			res.send(result)
+		})
 
 		app.post("/create-payment-intent", async (req, res) => {
 			const amountInCents = req.body.amountInCents;
