@@ -47,27 +47,27 @@ async function run() {
 		const paymentsCollection = db.collection("payments");
 		const ridersCollection = db.collection("riders");
 
-// 		const verifyFBToken =async(req,res,next) =>{
-// 			const authHeader=  req.headers.Authorization;
-// 			if(!authHeader){
-// 				return res.status(401).send({message : 'unauthorized acccess'})
-// 			}
-// 			const token  = authHeader.split(" ")[1];
-// 			if(!token){
-// 				return res.status(403).send({ message: "unauthorized acccess" });
-// 			}
+		const verifyFBToken =async(req,res,next) =>{
+			const authHeader=  req.headers.Authorization;
+			if(!authHeader){
+				return res.status(401).send({message : 'unauthorized acccess'})
+			}
+			const token  = authHeader.split(" ")[1];
+			if(!token){
+				return res.status(403).send({ message: "unauthorized acccess" });
+			}
 
-// 			try{
-// 				const decoded = await admin.auth().verifyIdToken(token)
-// 				req.decoded = decoded;
-// next();
-// 			}
-// 			catch(error){
-// 				return res.status(401).send({ message: "forbidden acccess" });
-// 			}
+			try{
+				const decoded = await admin.auth().verifyIdToken(token)
+				req.decoded = decoded;
+next();
+			}
+			catch(error){
+				return res.status(401).send({ message: "forbidden acccess" });
+			}
 
 			
-// 		}
+		}
 
 		
 
