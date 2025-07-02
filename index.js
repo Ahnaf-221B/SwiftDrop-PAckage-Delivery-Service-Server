@@ -47,42 +47,42 @@ async function run() {
 		const paymentsCollection = db.collection("payments");
 		const ridersCollection = db.collection("riders");
 
-		const verifyFBToken =async(req,res,next) =>{
-			const authHeader=  req.headers.Authorization;
-			if(!authHeader){
-				return res.status(401).send({message : 'unauthorized acccess'})
-			}
-			const token  = authHeader.split(" ")[1];
-			if(!token){
-				return res.status(403).send({ message: "unauthorized acccess" });
-			}
+// 		const verifyFBToken =async(req,res,next) =>{
+// 			const authHeader=  req.headers.Authorization;
+// 			if(!authHeader){
+// 				return res.status(401).send({message : 'unauthorized acccess'})
+// 			}
+// 			const token  = authHeader.split(" ")[1];
+// 			if(!token){
+// 				return res.status(403).send({ message: "unauthorized acccess" });
+// 			}
 
-			try{
-				const decoded = await admin.auth().verifyIdToken(token)
-				req.decoded = decoded;
-next();
-			}
-			catch(error){
-				return res.status(401).send({ message: "forbidden acccess" });
-			}
+// 			try{
+// 				const decoded = await admin.auth().verifyIdToken(token)
+// 				req.decoded = decoded;
+// next();
+// 			}
+// 			catch(error){
+// 				return res.status(401).send({ message: "forbidden acccess" });
+// 			}
 
 			
-		}
+// 		}
 
 		
 
-		app.post("/users", async (req, res) => {
-			const email = req.body.email;
-			const userExists = await usersCollection.findOne({ email });
-			if (userExists) {
-				return res
-					.status(200)
-					.send({ message: "User Already exists", inserted: false });
-			}
-			const user = req.body;
-			const result = await usersCollection.insertOne(user);
-			res.send(result);
-		});
+		// app.post("/users", async (req, res) => {
+		// 	const email = req.body.email;
+		// 	const userExists = await usersCollection.findOne({ email });
+		// 	if (userExists) {
+		// 		return res
+		// 			.status(200)
+		// 			.send({ message: "User Already exists", inserted: false });
+		// 	}
+		// 	const user = req.body;
+		// 	const result = await usersCollection.insertOne(user);
+		// 	res.send(result);
+		// });
 
 		app.get("/parcels", async (req, res) => {
 			const parcels = await parcelCollection.find().toArray();
@@ -126,145 +126,145 @@ next();
 			}
 		});
 
-		app.post("/parcels", async (req, res) => {
-			try {
-				const newParcel = req.body;
-				// newParcel.createdAt = new Date();
-				const result = await parcelCollection.insertOne(newParcel);
-				res.status(201).send(result);
-			} catch (error) {
-				console.error("Error inserting parcel:", error);
-				res.status(500).send({ message: "Failed to create parcel" });
-			}
-		});
+		// app.post("/parcels", async (req, res) => {
+		// 	try {
+		// 		const newParcel = req.body;
+		// 		// newParcel.createdAt = new Date();
+		// 		const result = await parcelCollection.insertOne(newParcel);
+		// 		res.status(201).send(result);
+		// 	} catch (error) {
+		// 		console.error("Error inserting parcel:", error);
+		// 		res.status(500).send({ message: "Failed to create parcel" });
+		// 	}
+		// });
 
-		app.delete("/parcels/:id", async (req, res) => {
-			try {
-				const id = req.params.id;
+		// app.delete("/parcels/:id", async (req, res) => {
+		// 	try {
+		// 		const id = req.params.id;
 
-				const result = await parcelCollection.deleteOne({
-					_id: new ObjectId(id),
-				});
+		// 		const result = await parcelCollection.deleteOne({
+		// 			_id: new ObjectId(id),
+		// 		});
 
-				res.send(result);
-			} catch (error) {
-				console.error("Error deleting parcel:", error);
-				res.status(500).send({ message: "Failed to delete parcel" });
-			}
-		});
+		// 		res.send(result);
+		// 	} catch (error) {
+		// 		console.error("Error deleting parcel:", error);
+		// 		res.status(500).send({ message: "Failed to delete parcel" });
+		// 	}
+		// });
 
-		app.get("/payments", verifyFBToken, async (req, res) => {
-			try {
-				const userEmail = req.query.email;
-				console.log(req.decoded);
+		// app.get("/payments", verifyFBToken, async (req, res) => {
+		// 	try {
+		// 		const userEmail = req.query.email;
+		// 		console.log(req.decoded);
 				
-				if(req.decoded.email != user.email)
-				{
-					return res.status(403).send({ nessage: "forbidden acccess" });
-				}
+		// 		if(req.decoded.email != user.email)
+		// 		{
+		// 			return res.status(403).send({ nessage: "forbidden acccess" });
+		// 		}
 
-				const query = userEmail ? { email: userEmail } : {};
-				const options = { sort: { paid_at: -1 } }; // Latest first
+		// 		const query = userEmail ? { email: userEmail } : {};
+		// 		const options = { sort: { paid_at: -1 } }; // Latest first
 
-				const payments = await paymentsCollection
-					.find(query, options)
-					.toArray();
-				res.send(payments);
-			} catch (error) {
-				console.error("Error fetching payment history:", error);
-				res.status(500).send({ message: "Failed to get payments" });
-			}
-		});
+		// 		const payments = await paymentsCollection
+		// 			.find(query, options)
+		// 			.toArray();
+		// 		res.send(payments);
+		// 	} catch (error) {
+		// 		console.error("Error fetching payment history:", error);
+		// 		res.status(500).send({ message: "Failed to get payments" });
+		// 	}
+		// });
 
-		// POST: Record payment and update parcel status
-		app.post("/payments", async (req, res) => {
-			try {
-				const { parcelId, email, amount, paymentMethod, transactionId } =
-					req.body;
+		// // POST: Record payment and update parcel status
+		// app.post("/payments", async (req, res) => {
+		// 	try {
+		// 		const { parcelId, email, amount, paymentMethod, transactionId } =
+		// 			req.body;
 
-				// 1. Update parcel's payment_status
-				const updateResult = await parcelCollection.updateOne(
-					{ _id: new ObjectId(parcelId) },
-					{
-						$set: {
-							payment_status: "paid",
-						},
-					}
-				);
+		// 		// 1. Update parcel's payment_status
+		// 		const updateResult = await parcelCollection.updateOne(
+		// 			{ _id: new ObjectId(parcelId) },
+		// 			{
+		// 				$set: {
+		// 					payment_status: "paid",
+		// 				},
+		// 			}
+		// 		);
 
-				if (updateResult.modifiedCount === 0) {
-					return res
-						.status(404)
-						.send({ message: "Parcel not found or already paid" });
-				}
+		// 		if (updateResult.modifiedCount === 0) {
+		// 			return res
+		// 				.status(404)
+		// 				.send({ message: "Parcel not found or already paid" });
+		// 		}
 
-				// 2. Insert payment record
-				const paymentDoc = {
-					parcelId,
-					email,
-					amount,
-					paymentMethod,
-					transactionId,
-					paid_at_string: new Date().toISOString(),
-					paid_at: new Date(),
-				};
+		// 		// 2. Insert payment record
+		// 		const paymentDoc = {
+		// 			parcelId,
+		// 			email,
+		// 			amount,
+		// 			paymentMethod,
+		// 			transactionId,
+		// 			paid_at_string: new Date().toISOString(),
+		// 			paid_at: new Date(),
+		// 		};
 
-				const paymentResult = await paymentsCollection.insertOne(paymentDoc);
+		// 		const paymentResult = await paymentsCollection.insertOne(paymentDoc);
 
-				res.status(201).send({
-					message: "Payment recorded and parcel marked as paid",
-					insertedId: paymentResult.insertedId,
-				});
-			} catch (error) {
-				console.error("Payment processing failed:", error);
-				res.status(500).send({ message: "Failed to record payment" });
-			}
-		});
+		// 		res.status(201).send({
+		// 			message: "Payment recorded and parcel marked as paid",
+		// 			insertedId: paymentResult.insertedId,
+		// 		});
+		// 	} catch (error) {
+		// 		console.error("Payment processing failed:", error);
+		// 		res.status(500).send({ message: "Failed to record payment" });
+		// 	}
+		// });
 
-		app.post("/tracking", async (req, res) => {
-			const {
-				tracking_id,
-				parcel_id,
-				status,
-				message,
-				updated_by = "",
-			} = req.body;
+		// app.post("/tracking", async (req, res) => {
+		// 	const {
+		// 		tracking_id,
+		// 		parcel_id,
+		// 		status,
+		// 		message,
+		// 		updated_by = "",
+		// 	} = req.body;
 
-			const log = {
-				tracking_id,
-				parcel_id: parcel_id ? new ObjectId(parcel_id) : undefined,
-				status,
-				message,
-				time: new Date(),
-				updated_by,
-			};
+		// 	const log = {
+		// 		tracking_id,
+		// 		parcel_id: parcel_id ? new ObjectId(parcel_id) : undefined,
+		// 		status,
+		// 		message,
+		// 		time: new Date(),
+		// 		updated_by,
+		// 	};
 
-			const result = await trackingCollection.insertOne(log);
-			res.send({ success: true, insertedId: result.insertedId });
-		});
+		// 	const result = await trackingCollection.insertOne(log);
+		// 	res.send({ success: true, insertedId: result.insertedId });
+		// });
 		
-		//riders api 
+		// //riders api 
 		
-		app.post('/riders',async (req,res)=>{
-			const rider = req.body;
-			const result = await ridersCollection.insertOne(rider)
-			res.send(result)
-		})
+		// app.post('/riders',async (req,res)=>{
+		// 	const rider = req.body;
+		// 	const result = await ridersCollection.insertOne(rider)
+		// 	res.send(result)
+		// })
 
-		app.post("/create-payment-intent", async (req, res) => {
-			const amountInCents = req.body.amountInCents;
-			try {
-				const paymentIntent = await stripe.paymentIntents.create({
-					amount: amountInCents, // Amount in cents
-					currency: "usd",
-					payment_method_types: ["card"],
-				});
+		// app.post("/create-payment-intent", async (req, res) => {
+		// 	const amountInCents = req.body.amountInCents;
+		// 	try {
+		// 		const paymentIntent = await stripe.paymentIntents.create({
+		// 			amount: amountInCents, // Amount in cents
+		// 			currency: "usd",
+		// 			payment_method_types: ["card"],
+		// 		});
 
-				res.json({ clientSecret: paymentIntent.client_secret });
-			} catch (error) {
-				res.status(500).json({ error: error.message });
-			}
-		});
+		// 		res.json({ clientSecret: paymentIntent.client_secret });
+		// 	} catch (error) {
+		// 		res.status(500).json({ error: error.message });
+		// 	}
+		// });
 
 		// Send a ping to confirm a successful connection
 		await client.db("admin").command({ ping: 1 });
