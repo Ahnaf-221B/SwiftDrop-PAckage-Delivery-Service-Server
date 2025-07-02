@@ -126,32 +126,32 @@ async function run() {
 			}
 		});
 
-		// app.post("/parcels", async (req, res) => {
-		// 	try {
-		// 		const newParcel = req.body;
-		// 		// newParcel.createdAt = new Date();
-		// 		const result = await parcelCollection.insertOne(newParcel);
-		// 		res.status(201).send(result);
-		// 	} catch (error) {
-		// 		console.error("Error inserting parcel:", error);
-		// 		res.status(500).send({ message: "Failed to create parcel" });
-		// 	}
-		// });
+		app.post("/parcels", async (req, res) => {
+			try {
+				const newParcel = req.body;
+				// newParcel.createdAt = new Date();
+				const result = await parcelCollection.insertOne(newParcel);
+				res.status(201).send(result);
+			} catch (error) {
+				console.error("Error inserting parcel:", error);
+				res.status(500).send({ message: "Failed to create parcel" });
+			}
+		});
 
-		// app.delete("/parcels/:id", async (req, res) => {
-		// 	try {
-		// 		const id = req.params.id;
+		app.delete("/parcels/:id", async (req, res) => {
+			try {
+				const id = req.params.id;
 
-		// 		const result = await parcelCollection.deleteOne({
-		// 			_id: new ObjectId(id),
-		// 		});
+				const result = await parcelCollection.deleteOne({
+					_id: new ObjectId(id),
+				});
 
-		// 		res.send(result);
-		// 	} catch (error) {
-		// 		console.error("Error deleting parcel:", error);
-		// 		res.status(500).send({ message: "Failed to delete parcel" });
-		// 	}
-		// });
+				res.send(result);
+			} catch (error) {
+				console.error("Error deleting parcel:", error);
+				res.status(500).send({ message: "Failed to delete parcel" });
+			}
+		});
 
 		// app.get("/payments", verifyFBToken, async (req, res) => {
 		// 	try {
