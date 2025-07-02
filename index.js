@@ -176,50 +176,50 @@ next();
 			}
 		});
 
-		// // POST: Record payment and update parcel status
-		// app.post("/payments", async (req, res) => {
-		// 	try {
-		// 		const { parcelId, email, amount, paymentMethod, transactionId } =
-		// 			req.body;
+		// POST: Record payment and update parcel status
+		app.post("/payments", async (req, res) => {
+			try {
+				const { parcelId, email, amount, paymentMethod, transactionId } =
+					req.body;
 
-		// 		// 1. Update parcel's payment_status
-		// 		const updateResult = await parcelCollection.updateOne(
-		// 			{ _id: new ObjectId(parcelId) },
-		// 			{
-		// 				$set: {
-		// 					payment_status: "paid",
-		// 				},
-		// 			}
-		// 		);
+				// 1. Update parcel's payment_status
+				const updateResult = await parcelCollection.updateOne(
+					{ _id: new ObjectId(parcelId) },
+					{
+						$set: {
+							payment_status: "paid",
+						},
+					}
+				);
 
-		// 		if (updateResult.modifiedCount === 0) {
-		// 			return res
-		// 				.status(404)
-		// 				.send({ message: "Parcel not found or already paid" });
-		// 		}
+				if (updateResult.modifiedCount === 0) {
+					return res
+						.status(404)
+						.send({ message: "Parcel not found or already paid" });
+				}
 
-		// 		// 2. Insert payment record
-		// 		const paymentDoc = {
-		// 			parcelId,
-		// 			email,
-		// 			amount,
-		// 			paymentMethod,
-		// 			transactionId,
-		// 			paid_at_string: new Date().toISOString(),
-		// 			paid_at: new Date(),
-		// 		};
+				// 2. Insert payment record
+				const paymentDoc = {
+					parcelId,
+					email,
+					amount,
+					paymentMethod,
+					transactionId,
+					paid_at_string: new Date().toISOString(),
+					paid_at: new Date(),
+				};
 
-		// 		const paymentResult = await paymentsCollection.insertOne(paymentDoc);
+				const paymentResult = await paymentsCollection.insertOne(paymentDoc);
 
-		// 		res.status(201).send({
-		// 			message: "Payment recorded and parcel marked as paid",
-		// 			insertedId: paymentResult.insertedId,
-		// 		});
-		// 	} catch (error) {
-		// 		console.error("Payment processing failed:", error);
-		// 		res.status(500).send({ message: "Failed to record payment" });
-		// 	}
-		// });
+				res.status(201).send({
+					message: "Payment recorded and parcel marked as paid",
+					insertedId: paymentResult.insertedId,
+				});
+			} catch (error) {
+				console.error("Payment processing failed:", error);
+				res.status(500).send({ message: "Failed to record payment" });
+			}
+		});
 
 		// app.post("/tracking", async (req, res) => {
 		// 	const {
