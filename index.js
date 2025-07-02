@@ -221,27 +221,27 @@ next();
 			}
 		});
 
-		// app.post("/tracking", async (req, res) => {
-		// 	const {
-		// 		tracking_id,
-		// 		parcel_id,
-		// 		status,
-		// 		message,
-		// 		updated_by = "",
-		// 	} = req.body;
+		app.post("/tracking", async (req, res) => {
+			const {
+				tracking_id,
+				parcel_id,
+				status,
+				message,
+				updated_by = "",
+			} = req.body;
 
-		// 	const log = {
-		// 		tracking_id,
-		// 		parcel_id: parcel_id ? new ObjectId(parcel_id) : undefined,
-		// 		status,
-		// 		message,
-		// 		time: new Date(),
-		// 		updated_by,
-		// 	};
+			const log = {
+				tracking_id,
+				parcel_id: parcel_id ? new ObjectId(parcel_id) : undefined,
+				status,
+				message,
+				time: new Date(),
+				updated_by,
+			};
 
-		// 	const result = await trackingCollection.insertOne(log);
-		// 	res.send({ success: true, insertedId: result.insertedId });
-		// });
+			const result = await trackingCollection.insertOne(log);
+			res.send({ success: true, insertedId: result.insertedId });
+		});
 		
 		// //riders api 
 		
@@ -251,20 +251,20 @@ next();
 		// 	res.send(result)
 		// })
 
-		// app.post("/create-payment-intent", async (req, res) => {
-		// 	const amountInCents = req.body.amountInCents;
-		// 	try {
-		// 		const paymentIntent = await stripe.paymentIntents.create({
-		// 			amount: amountInCents, // Amount in cents
-		// 			currency: "usd",
-		// 			payment_method_types: ["card"],
-		// 		});
+		app.post("/create-payment-intent", async (req, res) => {
+			const amountInCents = req.body.amountInCents;
+			try {
+				const paymentIntent = await stripe.paymentIntents.create({
+					amount: amountInCents, // Amount in cents
+					currency: "usd",
+					payment_method_types: ["card"],
+				});
 
-		// 		res.json({ clientSecret: paymentIntent.client_secret });
-		// 	} catch (error) {
-		// 		res.status(500).json({ error: error.message });
-		// 	}
-		// });
+				res.json({ clientSecret: paymentIntent.client_secret });
+			} catch (error) {
+				res.status(500).json({ error: error.message });
+			}
+		});
 
 		// Send a ping to confirm a successful connection
 		await client.db("admin").command({ ping: 1 });
