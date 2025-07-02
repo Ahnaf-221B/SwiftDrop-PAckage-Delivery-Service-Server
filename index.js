@@ -153,28 +153,28 @@ async function run() {
 			}
 		});
 
-		// app.get("/payments", verifyFBToken, async (req, res) => {
-		// 	try {
-		// 		const userEmail = req.query.email;
-		// 		console.log(req.decoded);
+		app.get("/payments", verifyFBToken, async (req, res) => {
+			try {
+				const userEmail = req.query.email;
+				console.log(req.decoded);
 				
-		// 		if(req.decoded.email != user.email)
-		// 		{
-		// 			return res.status(403).send({ nessage: "forbidden acccess" });
-		// 		}
+				if(req.decoded.email != user.email)
+				{
+					return res.status(403).send({ nessage: "forbidden acccess" });
+				}
 
-		// 		const query = userEmail ? { email: userEmail } : {};
-		// 		const options = { sort: { paid_at: -1 } }; // Latest first
+				const query = userEmail ? { email: userEmail } : {};
+				const options = { sort: { paid_at: -1 } }; // Latest first
 
-		// 		const payments = await paymentsCollection
-		// 			.find(query, options)
-		// 			.toArray();
-		// 		res.send(payments);
-		// 	} catch (error) {
-		// 		console.error("Error fetching payment history:", error);
-		// 		res.status(500).send({ message: "Failed to get payments" });
-		// 	}
-		// });
+				const payments = await paymentsCollection
+					.find(query, options)
+					.toArray();
+				res.send(payments);
+			} catch (error) {
+				console.error("Error fetching payment history:", error);
+				res.status(500).send({ message: "Failed to get payments" });
+			}
+		});
 
 		// // POST: Record payment and update parcel status
 		// app.post("/payments", async (req, res) => {
