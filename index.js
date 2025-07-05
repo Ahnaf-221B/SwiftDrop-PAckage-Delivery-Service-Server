@@ -17,15 +17,11 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-
-
-
 const serviceAccount = require("./swift-drop-firebase-admin-key.json");
 
 admin.initializeApp({
 	credential: admin.credential.cert(serviceAccount),
 });
-
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.0kt3v1x.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -47,29 +43,68 @@ async function run() {
 		const paymentsCollection = db.collection("payments");
 		const ridersCollection = db.collection("riders");
 
-		const verifyFBToken =async(req,res,next) =>{
-			const authHeader=  req.headers.Authorization;
-			if(!authHeader){
-				return res.status(401).send({message : 'unauthorized acccess'})
+		const verifyFBToken = async (req, res, next) => {
+			const authHeader = req.headers.authorization;
+			if (!authHeader) {
+				return res.status(401).send({ message: "unauthorized acccess" });
 			}
-			const token  = authHeader.split(" ")[1];
-			if(!token){
+			const token = authHeader.split(" ")[1];
+			if (!token) {
 				return res.status(403).send({ message: "unauthorized acccess" });
 			}
 
-			try{
-				const decoded = await admin.auth().verifyIdToken(token)
+			try {
+				const decoded = await admin.auth().verifyIdToken(token);
 				req.decoded = decoded;
-next();
-			}
-			catch(error){
+				next();
+			} catch (error) {
 				return res.status(401).send({ message: "forbidden acccess" });
 			}
+		};
 
-			
-		}
+		app.get("/users/search", async (req, res) => {
+			const emailQuery = req.query.email;
+			if (!emailQuery) {
+				return res.status(400).send({ message: "Missing email query" });
+			}
 
-		
+			const regex = new RegExp(emailQuery, "i"); // case-insensitive partial match
+
+			try {
+				const users = await usersCollection
+					.find({ email: { $regex: regex } })
+					// .project({ email: 1, createdAt: 1, role: 1 })
+					.limit(10)
+					.toArray();
+				res.send(users);
+			} catch (error) {
+				console.error("Error searching users", error);
+				res.status(500).send({ message: "Error searching users" });
+			}
+		});
+
+		app.get("/users/:email/role", async (req, res) => {
+			try {
+				const email = req.params.email;
+
+				if (!email) {
+					return res.status(400).send({ message: "Email is required" });
+				}
+
+				const user = await usersCollection.findOne({ email });
+
+				if (!user) {
+					return res.status(404).send({ message: "User not found" });
+				}
+
+				res.send({ role: user.role || "user" });
+			} catch (error) {
+				console.error("Error getting user role:", error);
+				res.status(500).send({ message: "Failed to get role" });
+			}
+		});
+
+
 		app.post("/users", async (req, res) => {
 			const email = req.body.email;
 			const userExists = await usersCollection.findOne({ email });
@@ -82,6 +117,31 @@ next();
 			const result = await usersCollection.insertOne(user);
 			res.send(result);
 		});
+		app.patch(
+			"/users/:id/role", 
+			verifyFBToken,
+			
+			async (req, res) => {
+				const { id } = req.params;
+				const { role } = req.body;
+
+				if (!["admin", "user"].includes(role)) {
+					return res.status(400).send({ message: "Invalid role" });
+				}
+
+				try {
+					const result = await usersCollection.updateOne(
+						{ _id: new ObjectId(id) },
+						{ $set: { role } }
+					);
+					res.send({ message: `User role updated to ${role}`, result });
+				} catch (error) {
+					console.error("Error updating user role", error);
+					res.status(500).send({ message: "Failed to update user role" });
+				}
+			}
+		);
+
 
 		app.get("/parcels", async (req, res) => {
 			const parcels = await parcelCollection.find().toArray();
@@ -144,6 +204,7 @@ next();
 				const result = await parcelCollection.deleteOne({
 					_id: new ObjectId(id),
 				});
+			
 
 				res.send(result);
 			} catch (error) {
@@ -156,9 +217,8 @@ next();
 			try {
 				const userEmail = req.query.email;
 				console.log(req.decoded);
-				
-				if(req.decoded.email != user.email)
-				{
+
+				if (req.decoded.email != user.email) {
 					return res.status(403).send({ nessage: "forbidden acccess" });
 				}
 
@@ -241,14 +301,14 @@ next();
 			const result = await trackingCollection.insertOne(log);
 			res.send({ success: true, insertedId: result.insertedId });
 		});
-		
-		//riders api 
-		
-		app.post('/riders',async (req,res)=>{
+
+		//riders api
+
+		app.post("/riders", async (req, res) => {
 			const rider = req.body;
-			const result = await ridersCollection.insertOne(rider)
-			res.send(result)
-		})
+			const result = await ridersCollection.insertOne(rider);
+			res.send(result);
+		});
 
 		app.patch("/riders/:id/status", async (req, res) => {
 			const { id } = req.params;
@@ -284,7 +344,7 @@ next();
 			}
 		});
 
-		app.get("/riders/pending", async (req, res) => {
+		app.get("/riders/pending", verifyFBToken, async (req, res) => {
 			try {
 				const pendingRiders = await ridersCollection
 					.find({ status: "pending" })
@@ -297,7 +357,7 @@ next();
 			}
 		});
 
-		app.get("/riders/active",  async (req, res) => {
+		app.get("/riders/active", verifyFBToken, async (req, res) => {
 			const result = await ridersCollection
 				.find({ status: "active" })
 				.toArray();
