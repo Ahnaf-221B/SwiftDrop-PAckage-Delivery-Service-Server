@@ -44,6 +44,7 @@ async function run() {
 		const parcelCollection = db.collection("parcels");
 		const paymentsCollection = db.collection("payments");
 		const ridersCollection = db.collection("riders");
+		const trackingsCollection = db.collection("trackings");
 
 		const verifyFBToken = async (req, res, next) => {
 			const authHeader = req.headers.authorization;
@@ -366,8 +367,33 @@ async function run() {
 				updated_by,
 			};
 
-			const result = await trackingCollection.insertOne(log);
+			const result = await trackingsCollection.insertOne(log);
 			res.send({ success: true, insertedId: result.insertedId });
+		});
+
+		app.get("/trackings/:trackingId", async (req, res) => {
+			const trackingId = req.params.trackingId;
+
+			const updates = await trackingsCollection
+				.find({ tracking_id: trackingId })
+				.sort({ timestamp: 1 }) // sort by time ascending
+				.toArray();
+
+			res.json(updates);
+		});
+
+		app.post("/trackings", async (req, res) => {
+			const update = req.body;
+
+			update.timestamp = new Date(); // ensure correct timestamp
+			if (!update.tracking_id || !update.status) {
+				return res
+					.status(400)
+					.json({ message: "tracking_id and status are required." });
+			}
+
+			const result = await trackingsCollection.insertOne(update);
+			res.status(201).json(result);
 		});
 
 		//riders api
@@ -556,6 +582,20 @@ async function run() {
 				}
 			}
 		);
+
+		app.patch("/parcels/:id/cashout", async (req, res) => {
+			const id = req.params.id;
+			const result = await parcelCollection.updateOne(
+				{ _id: new ObjectId(id) },
+				{
+					$set: {
+						cashout_status: "cashed_out",
+						cashed_out_at: new Date(),
+					},
+				}
+			);
+			res.send(result);
+		});
 
 
 		app.get("/riders/pending", verifyFBToken,verifyAdmin, async (req, res) => {
